@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "private-copilot",
+  "displayName": "Private Copilot",
+  "description": "Professional AI coding assistant powered by your local LLM",
+  "version": "1.0.0",
+  "publisher": "your-name",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "ai",
+    "assistant",
+    "code-completion",
+    "llm",
+    "local",
+    "private"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "privateCopilot.openChat",
+        "title": "Open Chat",
+        "category": "Private Copilot",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "privateCopilot.explainCode",
+        "title": "Explain Selected Code",
+        "category": "Private Copilot",
+        "icon": "$(book)"
+      },
+      {
+        "command": "privateCopilot.fixError",
+        "title": "Fix Code Issues",
+        "category": "Private Copilot",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "privateCopilot.askAboutCode",
+        "title": "Ask About Selected Code",
+        "category": "Private Copilot",
+        "icon": "$(question)"
+      },
+      {
+        "command": "privateCopilot.generateTests",
+        "title": "Generate Unit Tests",
+        "category": "Private Copilot",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "privateCopilot.healthCheck",
+        "title": "Check LLM Health",
+        "category": "Private Copilot",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "privateCopilot.toggleCompletions",
+        "title": "Toggle Inline Completions",
+        "category": "Private Copilot",
+        "icon": "$(symbol-keyword)"
+      },
+      {
+        "command": "privateCopilot.openSettings",
+        "title": "Open Settings",
+        "category": "Private Copilot",
+        "icon": "$(gear)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "privateCopilot.openChat",
+        "key": "ctrl+shift+p",
+        "mac": "cmd+shift+p",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "privateCopilot.explainCode",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "privateCopilot.fixError",
+        "key": "ctrl+shift+f",
+        "mac": "cmd+shift+f",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "privateCopilot.explainCode",
+          "when": "editorHasSelection",
+          "group": "privateCopilot@1"
+        },
+        {
+          "command": "privateCopilot.fixError",
+          "when": "editorTextFocus",
+          "group": "privateCopilot@2"
+        },
+        {
+          "command": "privateCopilot.askAboutCode",
+          "when": "editorHasSelection",
+          "group": "privateCopilot@3"
+        },
+        {
+          "command": "privateCopilot.generateTests",
+          "when": "editorHasSelection",
+          "group": "privateCopilot@4"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "privateCopilot.explainCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "privateCopilot.askAboutCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "privateCopilot.generateTests",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Private Copilot",
+      "properties": {
+        "privateCopilot.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:11434/v1",
+          "description": "Base URL for your local LLM API (e.g., Ollama, LocalAI, LM Studio)",
+          "order": 1
+        },
+        "privateCopilot.apiKey": {
+          "type": "string",
+          "default": "ollama",
+          "description": "API key for authentication (use 'ollama' for Ollama)",
+          "order": 2
+        },
+        "privateCopilot.modelName": {
+          "type": "string",
+          "default": "qwen2.5-coder:7b",
+          "description": "Model name to use (e.g., qwen2.5-coder:7b, codellama, deepseek-coder)",
+          "order": 3
+        },
+        "privateCopilot.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature (0 = deterministic, higher = more creative)",
+          "order": 4
+        },
+        "privateCopilot.maxTokens": {
+          "type": "number",
+          "default": 2048,
+          "minimum": 256,
+          "maximum": 32768,
+          "description": "Maximum tokens in response",
+          "order": 5
+        },
+        "privateCopilot.fixMaxTokens": {
+          "type": "number",
+          "default": 4096,
+          "minimum": 512,
+          "maximum": 32768,
+          "description": "Maximum tokens for fix operations (needs extra space for JSON)",
+          "order": 6
+        },
+        "privateCopilot.enableCompletions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable inline code completions",
+          "order": 7
+        },
+        "privateCopilot.streamDelay": {
+          "type": "number",
+          "default": 50,
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Delay between streaming chunks (ms) - increase if text appears too fast",
+          "order": 8
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "privateCopilot",
+          "title": "Private Copilot",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "privateCopilot": [
+        {
+          "type": "webview",
+          "id": "privateCopilotChat",
+          "name": "Chat",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "typescript-eslint": "^8.0.0",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.47.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "openai": "^4.22.1"
+  }
+}

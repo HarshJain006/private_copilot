@@ -1,0 +1,83 @@
+const vscode = acquireVsCodeApi();
+
+let currentAiMessage = null;  // For streaming appends to AI responses
+
+// Bind Send button and Enter key
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+  const healthBtn = document.getElementById('health');
+  const chatDiv = document.getElementById('chat');
+
+  if (!input || !sendBtn || !healthBtn || !chatDiv) {
+    console.error('Missing UI elements in webview');
+    return;
+  }
+
+  // Send on button click
+  sendBtn.addEventListener('click', sendMessage);
+
+  // Send on Enter in input
+  input.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Health check on button click
+  healthBtn.addEventListener('click', () => {
+    vscode.postMessage({ command: 'healthCheck' });
+    addMessage('user', '[Running health check...]');
+  });
+
+  console.log('Webview UI events bound successfully');
+});
+
+function sendMessage() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Add user message to chat
+  addMessage('user', text);
+
+  // Send to extension backend
+  vscode.postMessage({ command: 'sendMessage', text });
+
+  // Clear input
+  input.value = '';
+}
+
+function addMessage(role, content) {
+  const chat = document.getElementById('chat');
+  if (!chat) return;
+
+  const msgEl = document.createElement('div');
+  msgEl.className = `message ${role}`;
+  msgEl.textContent = content;
+  chat.appendChild(msgEl);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// Listen for backend updates (user/AI messages, streaming)
+window.addEventListener('message', (event) => {
+  const message = event.data;
+  if (message.command === 'updateChat') {
+    if (message.role === 'user') {
+      addMessage('user', message.content);
+    } else if (message.role === 'ai') {
+      if (message.append && currentAiMessage) {
+        // Append to ongoing AI response for streaming effect
+        currentAiMessage.textContent += message.content;
+      } else {
+        // New AI message
+        currentAiMessage = document.createElement('div');
+        currentAiMessage.className = 'message ai';
+        currentAiMessage.textContent = message.content;
+        document.getElementById('chat').appendChild(currentAiMessage);
+      }
+      document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    }
+  }
+});
